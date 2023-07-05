@@ -1,4 +1,7 @@
 <?php
+
+use MediaWiki\Logger\LoggerFactory;
+
 /**
  * RandomSelection -- randomly displays one of the given options.
  * Usage: <choose><option>A</option><option>B</option></choose>
@@ -46,6 +49,7 @@ class RandomSelection {
 	public static function render( $input, $argv, $parser ) {
 		# Prevent caching if specified so by the user
 		if ( isset( $argv['uncached'] ) ) {
+			LoggerFactory::getInstance( 'RandomSelection' )->warning( 'Uncached choose tag found' );
 			$parser->getOutput()->updateCacheExpiry( 0 );
 		}
 
