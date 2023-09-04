@@ -1,4 +1,5 @@
 <?php
+
 /**
  * RandomSelection -- randomly displays one of the given options.
  * Usage: <choose><option>A</option><option>B</option></choose>
@@ -7,6 +8,7 @@
  * @file
  * @ingroup Extensions
  * @author Ross McClure <https://www.mediawiki.org/wiki/User:Algorithm>
+ * @author Fandom Inc.
  * @link https://www.mediawiki.org/wiki/Extension:RandomSelection Documentation
  */
 class RandomSelection {
@@ -19,8 +21,12 @@ class RandomSelection {
 	 */
 	public static function register( &$parser ) {
 		$parser->setHook( 'choose', [ __CLASS__, 'render' ] );
-		$parser->setFunctionHook( 'choose', [ __CLASS__, 'renderParserFunction' ],
-			Parser::SFH_OBJECT_ARGS );
+		$parser->setFunctionHook(
+			'choose',
+			[ __CLASS__, 'renderParserFunction' ],
+			Parser::SFH_OBJECT_ARGS
+		);
+
 		return true;
 	}
 
@@ -32,6 +38,7 @@ class RandomSelection {
 	 */
 	public static function variableIds( &$variableIds ) {
 		$variableIds[] = 'choose';
+
 		return true;
 	}
 
@@ -44,10 +51,6 @@ class RandomSelection {
 	 * @return string
 	 */
 	public static function render( $input, $argv, $parser ) {
-		# Prevent caching if specified so by the user
-		if ( isset( $argv['uncached'] ) ) {
-			$parser->getOutput()->updateCacheExpiry( 0 );
-		}
 
 		# Parse the options and calculate total weight
 		$len = preg_match_all(
@@ -115,7 +118,17 @@ class RandomSelection {
 			$selectedContent .= $argv['after'];
 		}
 
-		return $parser->recursiveTagParse( $selectedContent );
+		$result = [];
+		foreach ( $out[2] as $option ) {
+			$result[] =
+				$parser->recursiveTagParse(
+					( $argv['before'] ?? '' )
+					. $option
+					. ( $argv['after'] ?? '' )
+				);
+		}
+
+		return Html::rawElement( 'script', [ 'type' => 'text/rnd-sel-init' ], json_encode( [ 'o' => $result ] ) );
 	}
 
 	/**
@@ -172,4 +185,7 @@ class RandomSelection {
 		return trim( $frame->expand( $output ) );
 	}
 
+	public static function onBeforePageDisplay( OutputPage &$out, Skin &$skin ) {
+		$out->addModules( [ 'ext.randomSelection' ] );
+	}
 }

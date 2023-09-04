@@ -1,10 +1,11 @@
 {
 	"name": "RandomSelection",
-	"version": "2.3.0",
+	"version": "3.0.0",
 	"author": [
 		"Ross McClure",
 		"Jack Phoenix",
-		"..."
+		"...",
+		"Fandom Inc."
 	],
 	"license-name": "GPL-2.0-or-later",
 	"url": "https://www.mediawiki.org/wiki/Extension:RandomSelection",
@@ -26,7 +27,24 @@
 	},
 	"Hooks": {
 		"ParserFirstCallInit": "RandomSelection::register",
-		"MagicWordwgVariableIDs": "RandomSelection::variableIds"
+		"MagicWordwgVariableIDs": "RandomSelection::variableIds",
+		"BeforePageDisplay": "RandomSelection::onBeforePageDisplay"
+	},
+	"ResourceModules": {
+		"ext.randomSelection": {
+			"scripts": [
+				"scripts/dieRoller.js"
+			],
+			"position": "bottom",
+			"targets": [
+				"desktop",
+				"mobile"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "RandomSelection"
 	},
 	"manifest_version": 2
 }
